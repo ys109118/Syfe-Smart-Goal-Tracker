@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 
 const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
 const CACHE_KEY = 'exchange_rate_cache';
+const API_KEY = '9b980edfb0-c570485e93-t8g0hl';
 
 export const useExchangeRate = () => {
   const [exchangeRate, setExchangeRate] = useState(null);
@@ -35,13 +36,13 @@ export const useExchangeRate = () => {
     setIsUsingCache(false);
     
     try {
-      const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const response = await fetch(`https://api.fastforex.io/fetch-one?from=USD&to=INR&api_key=${API_KEY}`);
       if (!response.ok) throw new Error('Failed to fetch exchange rate');
       
       const data = await response.json();
       
-      if (data.rates && data.rates.INR) {
-        const rate = data.rates.INR;
+      if (data.result && data.result.INR) {
+        const rate = data.result.INR;
         setExchangeRate(rate);
         setLastUpdated(new Date());
         setCachedRate(rate);

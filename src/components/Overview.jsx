@@ -23,11 +23,11 @@ function Overview({ goals }) {
           const warning = daysLeft <= 30 && daysLeft >= 0 && goal.savedAmount < goal.targetAmount;
 
           return (
-            <div key={goal.id}>
+            <div key={goal.id} className="deadline-item">
               <p>{goal.name} - Deadline: {goal.deadline}</p>
               <p>Time left: {daysLeft >= 0 ? `${daysLeft} day(s) left` : 'Deadline passed'}</p>
-              {overdue && <p style={{ color: "red" }}>Overdue</p>}
-              {warning && <p style={{ color: "orange" }}>Deadline within 30 days!</p>}
+              {overdue && <p className="overdue-text">Overdue</p>}
+              {warning && <p className="warning-text">Deadline within 30 days!</p>}
             </div>
           );
         })}

@@ -1,1 +1,46 @@
-import { useState } from 'react';\nimport { getContributions } from '../utils/localStorage';\n\nfunction ContributionHistory({ goalId, goalCurrency }) {\n  const [isExpanded, setIsExpanded] = useState(false);\n  const contributions = getContributions(goalId);\n\n  const formatCurrency = (amount, currency) => {\n    const symbol = currency === 'USD' ? '$' : '₹';\n    return `${symbol}${amount.toFixed(2)}`;\n  };\n\n  const formatDate = (dateString) => {\n    return new Date(dateString).toLocaleDateString();\n  };\n\n  if (contributions.length === 0) {\n    return null;\n  }\n\n  return (\n    <div className=\"contribution-history\">\n      <button \n        className=\"history-toggle\"\n        onClick={() => setIsExpanded(!isExpanded)}\n      >\n        {isExpanded ? '▼' : '▶'} Contribution History ({contributions.length})\n      </button>\n      \n      {isExpanded && (\n        <div className=\"history-list\">\n          {contributions.map((contribution) => (\n            <div key={contribution.id} className=\"history-item\">\n              <span className=\"history-date\">{formatDate(contribution.date)}</span>\n              <span className=\"history-amount\">\n                {formatCurrency(contribution.amount, goalCurrency)}\n              </span>\n            </div>\n          ))}\n        </div>\n      )}\n    </div>\n  );\n}\n\nexport default ContributionHistory;
+import { useState } from 'react';
+import { getContributions } from '../utils/localStorage';
+
+function ContributionHistory({ goalId, goalCurrency }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const contributions = getContributions(goalId);
+
+  const formatCurrency = (amount, currency) => {
+    const symbol = currency === 'USD' ? '$' : '₹';
+    return `${symbol}${amount.toFixed(2)}`;
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  if (contributions.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="contribution-history">
+      <button 
+        className="history-toggle"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {isExpanded ? '▼' : '▶'} Contribution History ({contributions.length})
+      </button>
+      
+      {isExpanded && (
+        <div className="history-list">
+          {contributions.map((contribution) => (
+            <div key={contribution.id} className="history-item">
+              <span className="history-date">{formatDate(contribution.date)}</span>
+              <span className="history-amount">
+                {formatCurrency(contribution.amount, goalCurrency)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ContributionHistory;
