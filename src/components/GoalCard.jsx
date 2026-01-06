@@ -1,6 +1,16 @@
+import { useState, useEffect } from 'react';
 import { NavLink } from "react-router-dom";
+import ContributionModal from './ContributionModal';
+import { getTotalContributions, addContribution } from '../utils/localStorage';
 
-function GoalCard({ goal, setGoals }) {
+function GoalCard({ goal, setGoals, exchangeRate }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [totalContributions, setTotalContributions] = useState(0);
+
+  useEffect(() => {
+    setTotalContributions(getTotalContributions(goal.id));
+  }, [goal.id]);
+
   const handleDelete = () => {
     fetch(`http://localhost:3000/goals/${goal.id}`, {
       method: "DELETE",
@@ -11,41 +21,117 @@ function GoalCard({ goal, setGoals }) {
       .catch((err) => console.error("Error deleting goal:", err));
   };
 
-  const progressPercent = Math.min(
-    (goal.savedAmount / goal.targetAmount) * 100,
-    100
-  ).toFixed(1);
+  const handleContribute = async (contribution) => {
+    addContribution(goal.id, contribution);
+    const newTotal = getTotalContributions(goal.id);
+    setTotalContributions(newTotal);
+    
+    // Update goal's saved amount in the backend
+    const updatedSavedAmount = goal.savedAmount + contribution.amount;
+    
+    try {
+      await fetch(`http://localhost:3000/goals/${goal.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ savedAmount: updatedSavedAmount })
+      });
+      
+      setGoals(prevGoals => 
+        prevGoals.map(g => 
+          g.id === goal.id ? { ...g, savedAmount: updatedSavedAmount } : g
+        )
+      );
+    } catch (err) {
+      console.error('Error updating goal:', err);
+    }
+  };
 
-  const remainingAmount = goal.targetAmount - goal.savedAmount;
+  const convertAmount = (amount, fromCurrency, toCurrency) => {
+    if (fromCurrency === toCurrency || !exchangeRate) return amount;
+    if (fromCurrency === 'USD' && toCurrency === 'INR') {
+      return amount * exchangeRate;
+    }
+    if (fromCurrency === 'INR' && toCurrency === 'USD') {
+      return amount / exchangeRate;
+    }
+    return amount;
+  };
+
+  const formatCurrency = (amount, currency) => {
+    const symbol = currency === 'USD' ? '$' : '₹';
+    return `${symbol}${amount.toFixed(2)}`;
+  };
+
+  const goalCurrency = goal.currency || 'USD';
+  const otherCurrency = goalCurrency === 'USD' ? 'INR' : 'USD';
+  
+  const targetInOtherCurrency = convertAmount(goal.targetAmount, goalCurrency, otherCurrency);
+  const savedInOtherCurrency = convertAmount(goal.savedAmount, goalCurrency, otherCurrency);
+  
+  const progressPercent = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
 
   return (
-    <div className="goal-card">
-      <h3>{goal.name}</h3>
-      <p>Category: {goal.category}</p>
-      <p>Target: ${goal.targetAmount}</p>
-      <p>Saved: ${goal.savedAmount}</p>
-      <p>Remaining: ${remainingAmount}</p>
-      <p>Deadline: {goal.deadline}</p>
+    <>
+      <div className="goal-card">
+        <h3>{goal.name}</h3>
+        <p>Category: {goal.category}</p>
+        
+        <div className="currency-display">
+          <p>Target: {formatCurrency(goal.targetAmount, goalCurrency)}</p>
+          {exchangeRate && (
+            <p className="original-currency">
+              Converted: {formatCurrency(targetInOtherCurrency, otherCurrency)}
+            </p>
+          )}
+        </div>
+        
+        <div className="currency-display">
+          <p>Saved: {formatCurrency(goal.savedAmount, goalCurrency)}</p>
+          {exchangeRate && (
+            <p className="original-currency">
+              Converted: {formatCurrency(savedInOtherCurrency, otherCurrency)}
+            </p>
+          )}
+        </div>
+        
+        <p>Remaining: {formatCurrency(goal.targetAmount - goal.savedAmount, goalCurrency)}</p>
+        <p>Deadline: {goal.deadline}</p>
+        <p>Progress: {progressPercent.toFixed(1)}%</p>
 
-      {/* Progress bar */}
-      <div className="progress-bar-container">
-        <div 
-        className="progress-bar"
-        style={{ width: `${(goal.savedAmount / goal.targetAmount) * 100}%` }}>
+        <div className="progress-bar-container">
+          <div 
+            className="progress-bar"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
+        <div className="goal-actions">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="contribute-button"
+          >
+            Add Contribution
+          </button>
+          
+          <NavLink to={`/edit/${goal.id}`}>
+            <button>Edit</button>
+          </NavLink>
+
+          <NavLink to={`/deposit/${goal.id}`}>
+            <button>Deposit</button>
+          </NavLink>
+
+          <button onClick={handleDelete}>Delete</button>
         </div>
       </div>
-
-      {/* Action buttons using NavLink */}
-      <NavLink to={`/edit/${goal.id}`}>
-        <button>Edit</button>
-      </NavLink>
-
-      <NavLink to={`/deposit/${goal.id}`}>
-        <button>Deposit</button>
-      </NavLink>
-
-      <button onClick={handleDelete}>Delete</button>
-    </div>
+      
+      <ContributionModal
+        goal={goal}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onContribute={handleContribute}
+      />
+    </>
   );
 }
 

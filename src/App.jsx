@@ -7,9 +7,13 @@ import EditGoalForm from './components/EditGoalForm';
 import DepositForm from './components/DepositForm';
 import Overview from './components/Overview';
 import NavBar from './components/NavBar';
+import CurrencySelector from './components/CurrencySelector';
+import SummaryBanner from './components/SummaryBanner';
+import { useExchangeRate } from './hooks/useExchangeRate';
 
 function App() {
   const [goals, setGoals] = useState([]);
+  const { exchangeRate, loading, error, lastUpdated, refreshRate } = useExchangeRate();
 
   useEffect(() => {
     fetch("http://localhost:3000/goals")
@@ -24,13 +28,46 @@ function App() {
 
       <div className='main-content'>
         <div className="title-card">
-          <h1 className="page-title">Your Goals!</h1>
+          <h1 className="page-title">Goal-Based Savings Planner</h1>
+          
+          <div className="exchange-rate-info">
+            {loading && <span className="loading">Loading exchange rate...</span>}
+            {error && <span className="error">Error: {error}</span>}
+            {exchangeRate && !loading && (
+              <div className="rate-display">
+                <span>1 USD = ₹{exchangeRate.toFixed(2)}</span>
+                {lastUpdated && (
+                  <span className="last-updated">
+                    Last updated: {lastUpdated.toLocaleString()}
+                  </span>
+                )}
+                <button 
+                  onClick={refreshRate} 
+                  disabled={loading}
+                  className="refresh-button"
+                >
+                  {loading ? '⟳' : '↻'} Refresh Rate
+                </button>
+              </div>
+            )}
+          </div>
         </div>
+
+        <SummaryBanner 
+          goals={goals}
+          exchangeRate={exchangeRate}
+        />
 
         <Routes>
           <Route 
             path="/"
-            element={<GoalList goals={goals} setGoals={setGoals} />}
+            element={
+              <GoalList 
+                goals={goals} 
+                setGoals={setGoals}
+                exchangeRate={exchangeRate}
+              />
+            }
           />
           <Route 
             path="/add"

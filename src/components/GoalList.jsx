@@ -1,6 +1,6 @@
 import GoalCard from './GoalCard';
 
-function GoalList({ goals, setGoals }) {
+function GoalList({ goals, setGoals, exchangeRate }) {
     return (
         <div className="goal-list">
             {goals.length === 0 ? (
@@ -11,6 +11,7 @@ function GoalList({ goals, setGoals }) {
                         key={goal.id}
                         goal={goal}
                         setGoals={setGoals}
+                        exchangeRate={exchangeRate}
                     />
                 ))
             )}
