@@ -32,7 +32,7 @@
       "name": "Car",
       "targetAmount": 4000,
       "currency": "USD",
-      "savedAmount": 0,
+      "savedAmount": 1500,
       "category": "Travel",
       "deadline": "2026-02-23",
       "createdAt": "2026-01-06"
