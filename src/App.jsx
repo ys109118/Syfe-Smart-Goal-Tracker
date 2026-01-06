@@ -9,11 +9,12 @@ import Overview from './components/Overview';
 import NavBar from './components/NavBar';
 import CurrencySelector from './components/CurrencySelector';
 import SummaryBanner from './components/SummaryBanner';
+import DarkModeToggle from './components/DarkModeToggle';
 import { useExchangeRate } from './hooks/useExchangeRate';
 
 function App() {
   const [goals, setGoals] = useState([]);
-  const { exchangeRate, loading, error, lastUpdated, refreshRate } = useExchangeRate();
+  const { exchangeRate, loading, error, lastUpdated, isUsingCache, refreshRate } = useExchangeRate();
 
   useEffect(() => {
     fetch("http://localhost:3000/goals")
@@ -24,6 +25,7 @@ function App() {
 
   return (
     <Router>
+      <DarkModeToggle />
       <NavBar />
 
       <div className='main-content'>
@@ -32,7 +34,12 @@ function App() {
           
           <div className="exchange-rate-info">
             {loading && <span className="loading">Loading exchange rate...</span>}
-            {error && <span className="error">Error: {error}</span>}
+            {error && !isUsingCache && <span className="error">Error: {error}</span>}
+            {isUsingCache && (
+              <div className="cache-warning">
+                ⚠️ Using cached exchange rate - API unavailable
+              </div>
+            )}
             {exchangeRate && !loading && (
               <div className="rate-display">
                 <span>1 USD = ₹{exchangeRate.toFixed(2)}</span>

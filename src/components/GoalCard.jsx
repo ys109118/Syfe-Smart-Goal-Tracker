@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from "react-router-dom";
 import ContributionModal from './ContributionModal';
+import ContributionHistory from './ContributionHistory';
 import { getTotalContributions, addContribution } from '../utils/localStorage';
 
 function GoalCard({ goal, setGoals, exchangeRate }) {
@@ -62,11 +63,20 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
     return `${symbol}${amount.toFixed(2)}`;
   };
 
+  const calculateMonthlyRequired = () => {
+    const today = new Date();
+    const deadline = new Date(goal.deadline);
+    const monthsRemaining = Math.max(1, Math.ceil((deadline - today) / (1000 * 60 * 60 * 24 * 30)));
+    const remaining = goal.targetAmount - goal.savedAmount;
+    return remaining / monthsRemaining;
+  };
+
   const goalCurrency = goal.currency || 'USD';
   const otherCurrency = goalCurrency === 'USD' ? 'INR' : 'USD';
   
   const targetInOtherCurrency = convertAmount(goal.targetAmount, goalCurrency, otherCurrency);
   const savedInOtherCurrency = convertAmount(goal.savedAmount, goalCurrency, otherCurrency);
+  const monthlyRequired = calculateMonthlyRequired();
   
   const progressPercent = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
 
@@ -96,6 +106,11 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
         
         <p>Remaining: {formatCurrency(goal.targetAmount - goal.savedAmount, goalCurrency)}</p>
         <p>Deadline: {goal.deadline}</p>
+        {monthlyRequired > 0 && (
+          <p className="monthly-required">
+            💰 Save {formatCurrency(monthlyRequired, goalCurrency)}/month to reach goal
+          </p>
+        )}
         <p>Progress: {progressPercent.toFixed(1)}%</p>
 
         <div className="progress-bar-container">
@@ -104,6 +119,8 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
             style={{ width: `${progressPercent}%` }}
           />
         </div>
+
+        <ContributionHistory goalId={goal.id} goalCurrency={goalCurrency} />
 
         <div className="goal-actions">
           <button 
