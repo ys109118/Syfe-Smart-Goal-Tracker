@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTotalContributionsInUSD } from '../utils/localStorage';
+import { getTotalContributions, getTotalContributionsInUSD } from '../utils/localStorage';
 
 function SummaryBanner({ goals, exchangeRate }) {
   const [, forceUpdate] = useState({});
