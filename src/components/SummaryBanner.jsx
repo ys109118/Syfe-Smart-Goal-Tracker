@@ -2,21 +2,18 @@ import { useState, useEffect } from 'react';
 import { getTotalContributions } from '../utils/localStorage';
 
 function SummaryBanner({ goals, exchangeRate }) {
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [, forceUpdate] = useState({});
   
-  // Listen for contribution changes
+  // Force re-render when contributions change
   useEffect(() => {
     const handleContributionChange = () => {
-      console.log('SummaryBanner: contribution changed, refreshing...');
-      setRefreshKey(prev => prev + 1);
+      forceUpdate({});
     };
     
     window.addEventListener('contributionAdded', handleContributionChange);
-    window.addEventListener('storage', handleContributionChange);
     
     return () => {
       window.removeEventListener('contributionAdded', handleContributionChange);
-      window.removeEventListener('storage', handleContributionChange);
     };
   }, []);
   
@@ -37,15 +34,13 @@ function SummaryBanner({ goals, exchangeRate }) {
     return sum + convertedAmount;
   }, 0);
 
-  // Calculate total saved directly in render (like Overview)
+  // Calculate total saved directly in render
   const totalSavedUSD = goals.reduce((sum, goal) => {
     const goalCurrency = goal.currency || 'USD';
     const actualSaved = getTotalContributions(goal.id);
     const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
     return sum + convertedAmount;
   }, 0);
-  
-  console.log('SummaryBanner render:', { refreshKey, totalSavedUSD, goalsCount: goals.length });
 
   // Calculate average progress across all goals using actual contributions
   const averageProgress = goals.length > 0 
@@ -73,7 +68,7 @@ function SummaryBanner({ goals, exchangeRate }) {
       
       <div className="summary-item">
         <h3>Total Saved</h3>
-        <p className="summary-value" key={refreshKey}>{formatCurrency(totalSavedUSD, 'USD')}</p>
+        <p className="summary-value">{formatCurrency(totalSavedUSD, 'USD')}</p>
         {exchangeRate && (
           <p className="summary-secondary">{formatCurrency(totalSavedUSD * exchangeRate, 'INR')}</p>
         )}
