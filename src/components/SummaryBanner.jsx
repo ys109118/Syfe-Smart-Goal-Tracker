@@ -33,19 +33,18 @@ function SummaryBanner({ goals, exchangeRate }) {
     return sum + convertedAmount;
   }, 0);
 
-  const totalSavedUSD = goals.reduce((sum, goal) => {
-    const goalCurrency = goal.currency || 'USD';
-    const actualSaved = getTotalContributions(goal.id); // Use localStorage contributions
-    const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
-    return sum + convertedAmount;
-  }, 0);
+  const [cachedTotalSaved, setCachedTotalSaved] = useState(0);
   
-  // Force recalculation when refreshKey changes
-  const [cachedTotalSaved, setCachedTotalSaved] = useState(totalSavedUSD);
-  
+  // Recalculate when refreshKey or goals change
   useEffect(() => {
+    const totalSavedUSD = goals.reduce((sum, goal) => {
+      const goalCurrency = goal.currency || 'USD';
+      const actualSaved = getTotalContributions(goal.id);
+      const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
+      return sum + convertedAmount;
+    }, 0);
     setCachedTotalSaved(totalSavedUSD);
-  }, [refreshKey, totalSavedUSD]);
+  }, [refreshKey, goals, exchangeRate]);
 
   // Calculate average progress across all goals using actual contributions
   const averageProgress = goals.length > 0 
