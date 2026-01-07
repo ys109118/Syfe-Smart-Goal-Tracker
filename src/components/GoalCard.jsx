@@ -70,42 +70,61 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
   return (
     <>
       <div className="goal-card">
-        <h3>{goal.name}</h3>
-        <p>Category: {goal.category}</p>
-        
-        <div className="currency-display">
-          <p>Target: {formatCurrency(goal.targetAmount, goalCurrency)}</p>
-          {exchangeRate && (
-            <p className="original-currency">
-              Converted: {formatCurrency(targetInOtherCurrency, otherCurrency)}
-            </p>
-          )}
+        <div className="goal-header">
+          <h3>{goal.name}</h3>
+          <span className="goal-category">{goal.category}</span>
         </div>
         
-        <div className="currency-display">
-          <p>Saved: {formatCurrency(goal.savedAmount, goalCurrency)}</p>
-          {exchangeRate && (
-            <p className="original-currency">
-              Converted: {formatCurrency(savedInOtherCurrency, otherCurrency)}
-            </p>
-          )}
+        <div className="goal-stats">
+          <div className="stat-item">
+            <span className="stat-label">Target</span>
+            <div className="currency-display">
+              <p className="stat-value">{formatCurrency(goal.targetAmount, goalCurrency)}</p>
+              {exchangeRate && (
+                <p className="converted-amount">
+                  ≈ {formatCurrency(targetInOtherCurrency, otherCurrency)}
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <div className="stat-item">
+            <span className="stat-label">Saved</span>
+            <div className="currency-display">
+              <p className="stat-value saved">{formatCurrency(goal.savedAmount, goalCurrency)}</p>
+              {exchangeRate && (
+                <p className="converted-amount">
+                  ≈ {formatCurrency(savedInOtherCurrency, otherCurrency)}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
         
-        <p>Remaining: {formatCurrency(goal.targetAmount - goal.savedAmount, goalCurrency)}</p>
-        <p>Deadline: {goal.deadline}</p>
+        <div className="progress-section">
+          <div className="progress-header">
+            <span className="progress-label">Progress</span>
+            <span className="progress-percentage">{progressPercent.toFixed(1)}%</span>
+          </div>
+          <div className="progress-bar-container">
+            <div 
+              className="progress-bar"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <p className="remaining-amount">Remaining: {formatCurrency(goal.targetAmount - goal.savedAmount, goalCurrency)}</p>
+        </div>
+        
+        <div className="deadline-section">
+          <span className="deadline-label">📅 Deadline</span>
+          <span className="deadline-date">{new Date(goal.deadline).toLocaleDateString()}</span>
+        </div>
+        
         {monthlyRequired > 0 && (
-          <p className="monthly-required">
+          <div className="monthly-required">
             💰 Save {formatCurrency(monthlyRequired, goalCurrency)}/month to reach goal
-          </p>
+          </div>
         )}
-        <p>Progress: {progressPercent.toFixed(1)}%</p>
-
-        <div className="progress-bar-container">
-          <div 
-            className="progress-bar"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
 
         <ContributionHistory goalId={goal.id} goalCurrency={goalCurrency} />
 
@@ -114,18 +133,18 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
             onClick={() => setIsModalOpen(true)}
             className="contribute-button"
           >
-            Add Contribution
+            ➕ Add Contribution
           </button>
           
           <NavLink to={`/edit/${goal.id}`}>
-            <button>Edit</button>
+            <button>✏️ Edit</button>
           </NavLink>
 
           <NavLink to={`/deposit/${goal.id}`}>
-            <button>Deposit</button>
+            <button>💰 Deposit</button>
           </NavLink>
 
-          <button onClick={handleDelete}>Delete</button>
+          <button onClick={handleDelete} className="delete-button">🗑️ Delete</button>
         </div>
       </div>
       
