@@ -16,6 +16,7 @@ function SummaryBanner({ goals, exchangeRate }) {
       window.removeEventListener('contributionAdded', handleContributionChange);
     };
   }, []);
+  
   const convertToCommonCurrency = (amount, fromCurrency) => {
     if (fromCurrency === 'USD' || !exchangeRate) return amount;
     return amount / exchangeRate; // Convert INR to USD for common calculation
@@ -33,18 +34,13 @@ function SummaryBanner({ goals, exchangeRate }) {
     return sum + convertedAmount;
   }, 0);
 
-  const [cachedTotalSaved, setCachedTotalSaved] = useState(0);
-  
-  // Recalculate when refreshKey or goals change
-  useEffect(() => {
-    const totalSavedUSD = goals.reduce((sum, goal) => {
-      const goalCurrency = goal.currency || 'USD';
-      const actualSaved = getTotalContributions(goal.id);
-      const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
-      return sum + convertedAmount;
-    }, 0);
-    setCachedTotalSaved(totalSavedUSD);
-  }, [refreshKey, goals, exchangeRate]);
+  // Calculate total saved directly in render (like Overview)
+  const totalSavedUSD = goals.reduce((sum, goal) => {
+    const goalCurrency = goal.currency || 'USD';
+    const actualSaved = getTotalContributions(goal.id);
+    const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
+    return sum + convertedAmount;
+  }, 0);
 
   // Calculate average progress across all goals using actual contributions
   const averageProgress = goals.length > 0 
@@ -72,9 +68,9 @@ function SummaryBanner({ goals, exchangeRate }) {
       
       <div className="summary-item">
         <h3>Total Saved</h3>
-        <p className="summary-value">{formatCurrency(cachedTotalSaved, 'USD')}</p>
+        <p className="summary-value" key={refreshKey}>{formatCurrency(totalSavedUSD, 'USD')}</p>
         {exchangeRate && (
-          <p className="summary-secondary">{formatCurrency(cachedTotalSaved * exchangeRate, 'INR')}</p>
+          <p className="summary-secondary">{formatCurrency(totalSavedUSD * exchangeRate, 'INR')}</p>
         )}
       </div>
       

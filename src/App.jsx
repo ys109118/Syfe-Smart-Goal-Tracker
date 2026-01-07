@@ -25,6 +25,22 @@ function App() {
       savedAmount: getTotalContributions(goal.id)
     }));
     setGoals(syncedGoals);
+    
+    // Listen for contribution changes to refresh goals
+    const handleContributionChange = () => {
+      const refreshedGoals = getGoals();
+      const syncedRefreshedGoals = refreshedGoals.map(goal => ({
+        ...goal,
+        savedAmount: getTotalContributions(goal.id)
+      }));
+      setGoals(syncedRefreshedGoals);
+    };
+    
+    window.addEventListener('contributionAdded', handleContributionChange);
+    
+    return () => {
+      window.removeEventListener('contributionAdded', handleContributionChange);
+    };
   }, []);
 
   return (
