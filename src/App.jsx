@@ -7,7 +7,6 @@ import EditGoalForm from './components/EditGoalForm';
 import DepositForm from './components/DepositForm';
 import Overview from './components/Overview';
 import NavBar from './components/NavBar';
-import CurrencySelector from './components/CurrencySelector';
 import SummaryBanner from './components/SummaryBanner';
 import DarkModeToggle from './components/DarkModeToggle';
 import { useExchangeRate } from './hooks/useExchangeRate';
