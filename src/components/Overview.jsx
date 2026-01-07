@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTotalContributions } from '../utils/localStorage';
+import { getTotalContributions, getTotalContributionsInUSD } from '../utils/localStorage';
 
 function Overview({ goals, exchangeRate }) {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -30,9 +30,9 @@ function Overview({ goals, exchangeRate }) {
   
   const totalGoals = goals.length;
   
-  // Calculate total saved from actual contributions in localStorage
+  // Calculate total saved from actual contributions in localStorage (currency-aware)
   const totalSaved = goals.reduce((acc, goal) => {
-    return acc + getTotalContributions(goal.id);
+    return acc + getTotalContributionsInUSD(goal.id, exchangeRate);
   }, 0);
   
   // Force recalculation on refreshKey change
@@ -40,8 +40,19 @@ function Overview({ goals, exchangeRate }) {
     // This effect ensures the component re-renders when refreshKey changes
   }, [refreshKey]);
   
-  const totalTarget = goals.reduce((acc, g) => acc + g.targetAmount, 0);
-  const goalsCompleted = goals.filter(g => getTotalContributions(g.id) >= g.targetAmount).length;
+  const totalTarget = goals.reduce((acc, g) => {
+    const goalCurrency = g.currency || 'USD';
+    if (goalCurrency === 'USD' || !exchangeRate) {
+      return acc + g.targetAmount;
+    } else {
+      return acc + (g.targetAmount / exchangeRate);
+    }
+  }, 0);
+  const goalsCompleted = goals.filter(g => {
+    const actualSaved = getTotalContributionsInUSD(g.id, exchangeRate);
+    const targetInUSD = g.currency === 'USD' || !exchangeRate ? g.targetAmount : g.targetAmount / exchangeRate;
+    return actualSaved >= targetInUSD;
+  }).length;
   const overallProgress = totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0;
 
   const formatCurrency = (amount, currency) => {
@@ -103,9 +114,11 @@ function Overview({ goals, exchangeRate }) {
             .map(goal => {
               const deadline = new Date(goal.deadline);
               const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-              const overdue = daysLeft < 0 && getTotalContributions(goal.id) < goal.targetAmount;
-              const warning = daysLeft <= 30 && daysLeft >= 0 && getTotalContributions(goal.id) < goal.targetAmount;
-              const completed = getTotalContributions(goal.id) >= goal.targetAmount;
+              const actualSaved = getTotalContributionsInUSD(goal.id, exchangeRate);
+              const targetInUSD = goal.currency === 'USD' || !exchangeRate ? goal.targetAmount : goal.targetAmount / exchangeRate;
+              const overdue = daysLeft < 0 && actualSaved < targetInUSD;
+              const warning = daysLeft <= 30 && daysLeft >= 0 && actualSaved < targetInUSD;
+              const completed = actualSaved >= targetInUSD;
 
               return (
                 <div key={goal.id} className={`deadline-item ${overdue ? 'overdue' : warning ? 'warning' : completed ? 'completed' : ''}`}>
