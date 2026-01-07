@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink } from "react-router-dom";
 import ContributionModal from './ContributionModal';
 import ContributionHistory from './ContributionHistory';
-import { getTotalContributions, addContribution } from '../utils/localStorage';
+import { getTotalContributions, getTotalContributionsInUSD, addContribution } from '../utils/localStorage';
 import { updateGoal, deleteGoal } from '../utils/goalsAPI';
 
 function GoalCard({ goal, setGoals, exchangeRate }) {
@@ -60,22 +60,25 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
     return `${symbol}${amount.toFixed(2)}`;
   };
 
+  const goalCurrency = goal.currency || 'USD';
+  const otherCurrency = goalCurrency === 'USD' ? 'INR' : 'USD';
+  
+  // Use actual contributions from localStorage
+  const actualSaved = getTotalContributions(goal.id);
+  
+  const targetInOtherCurrency = convertAmount(goal.targetAmount, goalCurrency, otherCurrency);
+  const savedInOtherCurrency = convertAmount(actualSaved, goalCurrency, otherCurrency);
+  
   const calculateMonthlyRequired = () => {
     const today = new Date();
     const deadline = new Date(goal.deadline);
     const monthsRemaining = Math.max(1, Math.ceil((deadline - today) / (1000 * 60 * 60 * 24 * 30)));
-    const remaining = goal.targetAmount - goal.savedAmount;
+    const remaining = goal.targetAmount - actualSaved;
     return remaining / monthsRemaining;
   };
-
-  const goalCurrency = goal.currency || 'USD';
-  const otherCurrency = goalCurrency === 'USD' ? 'INR' : 'USD';
   
-  const targetInOtherCurrency = convertAmount(goal.targetAmount, goalCurrency, otherCurrency);
-  const savedInOtherCurrency = convertAmount(goal.savedAmount, goalCurrency, otherCurrency);
   const monthlyRequired = calculateMonthlyRequired();
-  
-  const progressPercent = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
+  const progressPercent = Math.min((actualSaved / goal.targetAmount) * 100, 100);
 
   return (
     <>
@@ -101,7 +104,7 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
           <div className="stat-item">
             <span className="stat-label">Saved</span>
             <div className="currency-display">
-              <p className="stat-value saved">{formatCurrency(goal.savedAmount, goalCurrency)}</p>
+              <p className="stat-value saved">{formatCurrency(actualSaved, goalCurrency)}</p>
               {exchangeRate && (
                 <p className="converted-amount">
                   ≈ {formatCurrency(savedInOtherCurrency, otherCurrency)}
@@ -123,8 +126,8 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
             />
           </div>
           <p className="remaining-amount">
-            {goal.targetAmount - goal.savedAmount > 0 
-              ? `Remaining: ${formatCurrency(goal.targetAmount - goal.savedAmount, goalCurrency)}`
+            {goal.targetAmount - actualSaved > 0 
+              ? `Remaining: ${formatCurrency(goal.targetAmount - actualSaved, goalCurrency)}`
               : '🎉 Goal Exceeded!'
             }
           </p>
