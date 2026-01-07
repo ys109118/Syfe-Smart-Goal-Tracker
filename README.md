@@ -4,7 +4,8 @@ A lightweight, client-side savings planner that helps users create and track mul
 
 ## 🚀 Live Demo
 
-[View Live Demo](https://syfe-smart-goal-tracker.vercel.app/)<img width="2524" height="1170" alt="image" src="https://github.com/user-attachments/assets/652189e7-6e8f-44c4-a7c0-5bd3f6b76e24" />
+[View Live Demo](https://syfe-smart-goal-tracker.vercel.app/)<img width="2507" height="1438" alt="image" src="https://github.com/user-attachments/assets/3bc154b0-feae-4fce-8ac0-c5ccd54ee8ee" />
+
 
 ## 📋 Features
 
