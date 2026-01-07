@@ -43,8 +43,9 @@ function SummaryBanner({ goals, exchangeRate }) {
   // Calculate average progress across all goals using actual contributions
   const averageProgress = goals.length > 0 
     ? goals.reduce((sum, goal) => {
-        const actualSaved = getTotalContributions(goal.id);
-        const progress = goal.targetAmount > 0 ? (actualSaved / goal.targetAmount) * 100 : 0;
+        const actualSaved = getTotalContributionsInUSD(goal.id, exchangeRate);
+        const targetInUSD = goal.currency === 'USD' || !exchangeRate ? goal.targetAmount : goal.targetAmount / exchangeRate;
+        const progress = targetInUSD > 0 ? (actualSaved / targetInUSD) * 100 : 0;
         return sum + progress;
       }, 0) / goals.length
     : 0;
