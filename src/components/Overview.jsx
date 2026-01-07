@@ -1,6 +1,14 @@
+import { useState, useEffect } from 'react';
 import { getTotalContributions } from '../utils/localStorage';
 
 function Overview({ goals, exchangeRate }) {
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Force refresh when component mounts or goals change
+  useEffect(() => {
+    setRefreshKey(prev => prev + 1);
+  }, [goals]);
+  
   const totalGoals = goals.length;
   
   // Calculate total saved from actual contributions in localStorage
@@ -34,7 +42,7 @@ function Overview({ goals, exchangeRate }) {
           <div className="stat-icon">💰</div>
           <div className="stat-info">
             <h3>Total Saved</h3>
-            <p className="stat-value">{formatCurrency(totalSaved, 'USD')}</p>
+            <p className="stat-value" key={refreshKey}>{formatCurrency(totalSaved, 'USD')}</p>
             {exchangeRate && (
               <p className="stat-secondary">{formatCurrency(totalSaved * exchangeRate, 'INR')}</p>
             )}
