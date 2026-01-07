@@ -48,13 +48,27 @@ export const getTotalContributionsInGoalCurrency = (goalId, goalCurrency, exchan
     const amount = contrib.amount;
     const contribCurrency = contrib.currency || 'USD';
     
-    if (contribCurrency === goalCurrency || !exchangeRate) {
+    // Same currency - no conversion needed
+    if (contribCurrency === goalCurrency) {
       return total + amount;
-    } else if (contribCurrency === 'USD' && goalCurrency === 'INR') {
+    }
+    
+    // Need conversion but no exchange rate available
+    if (!exchangeRate) {
+      return total + amount;
+    }
+    
+    // Convert USD to INR
+    if (contribCurrency === 'USD' && goalCurrency === 'INR') {
       return total + (amount * exchangeRate);
-    } else if (contribCurrency === 'INR' && goalCurrency === 'USD') {
+    }
+    
+    // Convert INR to USD
+    if (contribCurrency === 'INR' && goalCurrency === 'USD') {
       return total + (amount / exchangeRate);
     }
+    
+    // Fallback - return as is
     return total + amount;
   }, 0);
 };
