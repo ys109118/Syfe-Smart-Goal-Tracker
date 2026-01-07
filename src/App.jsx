@@ -11,16 +11,14 @@ import CurrencySelector from './components/CurrencySelector';
 import SummaryBanner from './components/SummaryBanner';
 import DarkModeToggle from './components/DarkModeToggle';
 import { useExchangeRate } from './hooks/useExchangeRate';
+import { getGoals } from './utils/goalsAPI';
 
 function App() {
   const [goals, setGoals] = useState([]);
   const { exchangeRate, loading, error, lastUpdated, isUsingCache, refreshRate } = useExchangeRate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/goals")
-      .then((res) => res.json())
-      .then((data) => setGoals(data))
-      .catch((err) => console.error("Error fetching goals.", err));
+    setGoals(getGoals());
   }, []);
 
   return (

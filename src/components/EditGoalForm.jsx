@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
-import { useParams, NavLink } from "react-router-dom";
+import { useParams, NavLink, useNavigate } from "react-router-dom";
+import { updateGoal } from '../utils/goalsAPI';
 
 function EditGoalForm({ goals, setGoals }) {
   const { id } = useParams();
-  const goalToEdit = goals.find((goal) => goal.id === id);
+  const navigate = useNavigate();
+  const goalToEdit = goals.find((goal) => goal.id === parseInt(id));
 
   const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
@@ -30,21 +32,12 @@ function EditGoalForm({ goals, setGoals }) {
       deadline,
     };
 
-    fetch(`http://localhost:3000/goals/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedGoal),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const updatedGoals = goals.map((goal) =>
-          goal.id === id ? data : goal
-        );
-        setGoals(updatedGoals);
-      })
-      .catch((err) => console.error("Error updating goal:", err));
+    updateGoal(id, updatedGoal);
+    const updatedGoals = goals.map((goal) =>
+      goal.id === parseInt(id) ? updatedGoal : goal
+    );
+    setGoals(updatedGoals);
+    navigate('/');
   };
 
   if (!goalToEdit) return <p>Loading goal data...</p>;

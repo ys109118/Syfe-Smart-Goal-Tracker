@@ -1,35 +1,25 @@
 import { useState } from "react";
-import { useParams, NavLink } from "react-router-dom";
+import { useParams, NavLink, useNavigate } from "react-router-dom";
+import { updateGoal } from '../utils/goalsAPI';
 
 function DepositForm({ goals, setGoals }) {
   const { id } = useParams();
-  const goal = goals.find((g) => g.id === id);
+  const navigate = useNavigate();
+  const goal = goals.find((g) => g.id === parseInt(id));
   const [deposit, setDeposit] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const updatedGoal = {
-      ...goal,
-      savedAmount: goal.savedAmount + parseFloat(deposit),
-    };
-
-    fetch(`http://localhost:3000/goals/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ savedAmount: updatedGoal.savedAmount }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const updatedGoals = goals.map((g) =>
-          g.id === id ? data : g
-        );
-        setGoals(updatedGoals);
-        setDeposit("");
-      })
-      .catch((err) => console.error("Error adding deposit:", err));
+    const updatedSavedAmount = goal.savedAmount + parseFloat(deposit);
+    updateGoal(id, { savedAmount: updatedSavedAmount });
+    
+    const updatedGoals = goals.map((g) =>
+      g.id === parseInt(id) ? { ...g, savedAmount: updatedSavedAmount } : g
+    );
+    setGoals(updatedGoals);
+    setDeposit("");
+    navigate('/');
   };
 
   if (!goal) return <p>Loading goal...</p>;

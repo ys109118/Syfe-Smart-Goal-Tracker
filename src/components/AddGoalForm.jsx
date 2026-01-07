@@ -1,5 +1,6 @@
 import { useState} from 'react';
 import { useNavigate } from 'react-router-dom';
+import { addGoal } from '../utils/goalsAPI';
 
 function AddGoalForm({ goals, setGoals}) {
     const [name, setName] = useState("");
@@ -23,7 +24,7 @@ function AddGoalForm({ goals, setGoals}) {
             return;
         }
 
-        const newGoal = {
+        const newGoal = addGoal({
             name,
             targetAmount: parseFloat(targetAmount),
             currency,
@@ -31,37 +32,17 @@ function AddGoalForm({ goals, setGoals}) {
             category,
             deadline,
             createdAt: new Date().toISOString().split("T")[0],
-        };
-
-        console.log('Sending goal to server:', newGoal);
-
-        fetch("http://localhost:3000/goals",{
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(newGoal),
-        })
-        .then((res) => {
-            console.log('Server response status:', res.status);
-            return res.json();
-        })
-        .then((data) => {
-            console.log('Goal added successfully:', data);
-            setGoals([...goals, data]);
-            // Reset form fields
-            setName("");
-            setTargetAmount("");
-            setCurrency("USD");
-            setCategory("");
-            setDeadline("");
-            // Navigate back to home page
-            navigate('/');
-        })
-        .catch((err) => {
-            console.error("Error adding goal:", err);
-            alert('Error adding goal. Please check if the server is running.');
         });
+
+        setGoals([...goals, newGoal]);
+        // Reset form fields
+        setName("");
+        setTargetAmount("");
+        setCurrency("USD");
+        setCategory("");
+        setDeadline("");
+        // Navigate back to home page
+        navigate('/');
     };
 
     return (

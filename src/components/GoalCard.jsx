@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import ContributionModal from './ContributionModal';
 import ContributionHistory from './ContributionHistory';
 import { getTotalContributions, addContribution } from '../utils/localStorage';
+import { updateGoal, deleteGoal } from '../utils/goalsAPI';
 
 function GoalCard({ goal, setGoals, exchangeRate }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,13 +14,8 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
   }, [goal.id]);
 
   const handleDelete = () => {
-    fetch(`http://localhost:3000/goals/${goal.id}`, {
-      method: "DELETE",
-    })
-      .then(() => {
-        setGoals((prevGoals) => prevGoals.filter((g) => g.id !== goal.id));
-      })
-      .catch((err) => console.error("Error deleting goal:", err));
+    deleteGoal(goal.id);
+    setGoals((prevGoals) => prevGoals.filter((g) => g.id !== goal.id));
   };
 
   const handleContribute = async (contribution) => {
@@ -27,24 +23,15 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
     const newTotal = getTotalContributions(goal.id);
     setTotalContributions(newTotal);
     
-    // Update goal's saved amount in the backend
+    // Update goal's saved amount
     const updatedSavedAmount = goal.savedAmount + contribution.amount;
+    updateGoal(goal.id, { savedAmount: updatedSavedAmount });
     
-    try {
-      await fetch(`http://localhost:3000/goals/${goal.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ savedAmount: updatedSavedAmount })
-      });
-      
-      setGoals(prevGoals => 
-        prevGoals.map(g => 
-          g.id === goal.id ? { ...g, savedAmount: updatedSavedAmount } : g
-        )
-      );
-    } catch (err) {
-      console.error('Error updating goal:', err);
-    }
+    setGoals(prevGoals => 
+      prevGoals.map(g => 
+        g.id === goal.id ? { ...g, savedAmount: updatedSavedAmount } : g
+      )
+    );
   };
 
   const convertAmount = (amount, fromCurrency, toCurrency) => {
