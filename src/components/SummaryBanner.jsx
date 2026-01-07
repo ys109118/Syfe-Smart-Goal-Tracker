@@ -39,6 +39,13 @@ function SummaryBanner({ goals, exchangeRate }) {
     const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
     return sum + convertedAmount;
   }, 0);
+  
+  // Force recalculation when refreshKey changes
+  const [cachedTotalSaved, setCachedTotalSaved] = useState(totalSavedUSD);
+  
+  useEffect(() => {
+    setCachedTotalSaved(totalSavedUSD);
+  }, [refreshKey, totalSavedUSD]);
 
   // Calculate average progress across all goals using actual contributions
   const averageProgress = goals.length > 0 
@@ -66,9 +73,9 @@ function SummaryBanner({ goals, exchangeRate }) {
       
       <div className="summary-item">
         <h3>Total Saved</h3>
-        <p className="summary-value" key={refreshKey}>{formatCurrency(totalSavedUSD, 'USD')}</p>
+        <p className="summary-value">{formatCurrency(cachedTotalSaved, 'USD')}</p>
         {exchangeRate && (
-          <p className="summary-secondary">{formatCurrency(totalSavedUSD * exchangeRate, 'INR')}</p>
+          <p className="summary-secondary">{formatCurrency(cachedTotalSaved * exchangeRate, 'INR')}</p>
         )}
       </div>
       
