@@ -4,9 +4,28 @@ import { getTotalContributions } from '../utils/localStorage';
 function Overview({ goals, exchangeRate }) {
   const [refreshKey, setRefreshKey] = useState(0);
   
-  // Force refresh when component mounts or goals change
+  // Force refresh when component mounts, goals change, or localStorage changes
   useEffect(() => {
     setRefreshKey(prev => prev + 1);
+    
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for custom events when contributions are added
+    const handleContributionChange = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+    
+    window.addEventListener('contributionAdded', handleContributionChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('contributionAdded', handleContributionChange);
+    };
   }, [goals]);
   
   const totalGoals = goals.length;
@@ -15,6 +34,11 @@ function Overview({ goals, exchangeRate }) {
   const totalSaved = goals.reduce((acc, goal) => {
     return acc + getTotalContributions(goal.id);
   }, 0);
+  
+  // Force recalculation on refreshKey change
+  useEffect(() => {
+    // This effect ensures the component re-renders when refreshKey changes
+  }, [refreshKey]);
   
   const totalTarget = goals.reduce((acc, g) => acc + g.targetAmount, 0);
   const goalsCompleted = goals.filter(g => getTotalContributions(g.id) >= g.targetAmount).length;

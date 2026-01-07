@@ -1,4 +1,21 @@
+import { useState, useEffect } from 'react';
+import { getTotalContributions } from '../utils/localStorage';
+
 function SummaryBanner({ goals, exchangeRate }) {
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Listen for contribution changes
+  useEffect(() => {
+    const handleContributionChange = () => {
+      setRefreshKey(prev => prev + 1);
+    };
+    
+    window.addEventListener('contributionAdded', handleContributionChange);
+    
+    return () => {
+      window.removeEventListener('contributionAdded', handleContributionChange);
+    };
+  }, []);
   const convertToCommonCurrency = (amount, fromCurrency) => {
     if (fromCurrency === 'USD' || !exchangeRate) return amount;
     return amount / exchangeRate; // Convert INR to USD for common calculation
@@ -18,14 +35,16 @@ function SummaryBanner({ goals, exchangeRate }) {
 
   const totalSavedUSD = goals.reduce((sum, goal) => {
     const goalCurrency = goal.currency || 'USD';
-    const convertedAmount = convertToCommonCurrency(goal.savedAmount, goalCurrency);
+    const actualSaved = getTotalContributions(goal.id); // Use localStorage contributions
+    const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
     return sum + convertedAmount;
   }, 0);
 
-  // Calculate average progress across all goals
+  // Calculate average progress across all goals using actual contributions
   const averageProgress = goals.length > 0 
     ? goals.reduce((sum, goal) => {
-        const progress = goal.targetAmount > 0 ? (goal.savedAmount / goal.targetAmount) * 100 : 0;
+        const actualSaved = getTotalContributions(goal.id);
+        const progress = goal.targetAmount > 0 ? (actualSaved / goal.targetAmount) * 100 : 0;
         return sum + progress;
       }, 0) / goals.length
     : 0;
@@ -47,7 +66,7 @@ function SummaryBanner({ goals, exchangeRate }) {
       
       <div className="summary-item">
         <h3>Total Saved</h3>
-        <p className="summary-value">{formatCurrency(totalSavedUSD, 'USD')}</p>
+        <p className="summary-value" key={refreshKey}>{formatCurrency(totalSavedUSD, 'USD')}</p>
         {exchangeRate && (
           <p className="summary-secondary">{formatCurrency(totalSavedUSD * exchangeRate, 'INR')}</p>
         )}

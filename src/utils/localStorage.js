@@ -15,6 +15,10 @@ export const addContribution = (goalId, contribution) => {
   
   contributions.push(newContribution);
   localStorage.setItem(`contributions_${goalId}`, JSON.stringify(contributions));
+  
+  // Dispatch custom event to notify components
+  window.dispatchEvent(new CustomEvent('contributionAdded', { detail: { goalId, contribution: newContribution } }));
+  
   return newContribution;
 };
 
