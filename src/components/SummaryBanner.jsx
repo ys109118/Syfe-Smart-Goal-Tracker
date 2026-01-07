@@ -7,13 +7,16 @@ function SummaryBanner({ goals, exchangeRate }) {
   // Listen for contribution changes
   useEffect(() => {
     const handleContributionChange = () => {
+      console.log('SummaryBanner: contribution changed, refreshing...');
       setRefreshKey(prev => prev + 1);
     };
     
     window.addEventListener('contributionAdded', handleContributionChange);
+    window.addEventListener('storage', handleContributionChange);
     
     return () => {
       window.removeEventListener('contributionAdded', handleContributionChange);
+      window.removeEventListener('storage', handleContributionChange);
     };
   }, []);
   
@@ -41,6 +44,8 @@ function SummaryBanner({ goals, exchangeRate }) {
     const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
     return sum + convertedAmount;
   }, 0);
+  
+  console.log('SummaryBanner render:', { refreshKey, totalSavedUSD, goalsCount: goals.length });
 
   // Calculate average progress across all goals using actual contributions
   const averageProgress = goals.length > 0 
