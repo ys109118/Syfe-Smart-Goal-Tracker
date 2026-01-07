@@ -22,26 +22,6 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
     addContribution(goal.id, contribution);
     const newTotal = getTotalContributions(goal.id);
     setTotalContributions(newTotal);
-    
-    // Convert contribution to goal currency if different
-    let contributionAmount = contribution.amount;
-    if (contribution.currency !== goalCurrency && exchangeRate) {
-      if (contribution.currency === 'USD' && goalCurrency === 'INR') {
-        contributionAmount = contribution.amount * exchangeRate;
-      } else if (contribution.currency === 'INR' && goalCurrency === 'USD') {
-        contributionAmount = contribution.amount / exchangeRate;
-      }
-    }
-    
-    // Update goal's saved amount
-    const updatedSavedAmount = goal.savedAmount + contributionAmount;
-    updateGoal(goal.id, { savedAmount: updatedSavedAmount });
-    
-    setGoals(prevGoals => 
-      prevGoals.map(g => 
-        g.id === goal.id ? { ...g, savedAmount: updatedSavedAmount } : g
-      )
-    );
   };
 
   const convertAmount = (amount, fromCurrency, toCurrency) => {

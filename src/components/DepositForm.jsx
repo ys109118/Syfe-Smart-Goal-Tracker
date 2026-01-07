@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, NavLink, useNavigate } from "react-router-dom";
-import { updateGoal } from '../utils/goalsAPI';
+import { addContribution } from '../utils/localStorage';
 
 function DepositForm({ goals, setGoals }) {
   const { id } = useParams();
@@ -11,13 +11,13 @@ function DepositForm({ goals, setGoals }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const updatedSavedAmount = goal.savedAmount + parseFloat(deposit);
-    updateGoal(id, { savedAmount: updatedSavedAmount });
+    // Add as contribution instead of updating savedAmount
+    addContribution(parseInt(id), {
+      amount: parseFloat(deposit),
+      currency: goal.currency || 'USD',
+      date: new Date().toISOString().split('T')[0]
+    });
     
-    const updatedGoals = goals.map((g) =>
-      g.id === parseInt(id) ? { ...g, savedAmount: updatedSavedAmount } : g
-    );
-    setGoals(updatedGoals);
     setDeposit("");
     navigate('/');
   };
