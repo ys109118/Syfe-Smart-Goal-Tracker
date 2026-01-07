@@ -1,8 +1,15 @@
+import { getTotalContributions } from '../utils/localStorage';
+
 function Overview({ goals, exchangeRate }) {
   const totalGoals = goals.length;
-  const totalSaved = goals.reduce((acc, g) => acc + g.savedAmount, 0);
+  
+  // Calculate total saved from actual contributions in localStorage
+  const totalSaved = goals.reduce((acc, goal) => {
+    return acc + getTotalContributions(goal.id);
+  }, 0);
+  
   const totalTarget = goals.reduce((acc, g) => acc + g.targetAmount, 0);
-  const goalsCompleted = goals.filter(g => g.savedAmount >= g.targetAmount).length;
+  const goalsCompleted = goals.filter(g => getTotalContributions(g.id) >= g.targetAmount).length;
   const overallProgress = totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0;
 
   const formatCurrency = (amount, currency) => {
@@ -64,9 +71,9 @@ function Overview({ goals, exchangeRate }) {
             .map(goal => {
               const deadline = new Date(goal.deadline);
               const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-              const overdue = daysLeft < 0 && goal.savedAmount < goal.targetAmount;
-              const warning = daysLeft <= 30 && daysLeft >= 0 && goal.savedAmount < goal.targetAmount;
-              const completed = goal.savedAmount >= goal.targetAmount;
+              const overdue = daysLeft < 0 && getTotalContributions(goal.id) < goal.targetAmount;
+              const warning = daysLeft <= 30 && daysLeft >= 0 && getTotalContributions(goal.id) < goal.targetAmount;
+              const completed = getTotalContributions(goal.id) >= goal.targetAmount;
 
               return (
                 <div key={goal.id} className={`deadline-item ${overdue ? 'overdue' : warning ? 'warning' : completed ? 'completed' : ''}`}>
