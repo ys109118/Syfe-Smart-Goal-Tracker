@@ -1,11 +1,10 @@
-<img width="2524" height="1170" alt="image" src="https://github.com/user-attachments/assets/596769e0-0566-48ae-9f63-1c5dc2cbf146" /># Goal-Based Savings Planner
+
 
 A lightweight, client-side savings planner that helps users create and track multiple financial goals with real-time currency conversion between USD and INR.
 
 ## 🚀 Live Demo
 
 [View Live Demo](https://syfe-smart-goal-tracker.vercel.app/)<img width="2524" height="1170" alt="image" src="https://github.com/user-attachments/assets/652189e7-6e8f-44c4-a7c0-5bd3f6b76e24" />
-<img width="2524" height="1170" alt="image" src="https://github.com/user-attachments/assets/77846d1c-8d0f-4c4b-9527-0bacf101e3c4" />
 
 ## 📋 Features
 
