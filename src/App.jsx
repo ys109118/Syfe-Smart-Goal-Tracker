@@ -11,13 +11,20 @@ import SummaryBanner from './components/SummaryBanner';
 import DarkModeToggle from './components/DarkModeToggle';
 import { useExchangeRate } from './hooks/useExchangeRate';
 import { getGoals } from './utils/goalsAPI';
+import { getTotalContributions } from './utils/localStorage';
 
 function App() {
   const [goals, setGoals] = useState([]);
   const { exchangeRate, loading, error, lastUpdated, isUsingCache, refreshRate } = useExchangeRate();
 
   useEffect(() => {
-    setGoals(getGoals());
+    const loadedGoals = getGoals();
+    // Sync savedAmount with contributions from localStorage
+    const syncedGoals = loadedGoals.map(goal => ({
+      ...goal,
+      savedAmount: getTotalContributions(goal.id)
+    }));
+    setGoals(syncedGoals);
   }, []);
 
   return (
@@ -87,7 +94,7 @@ function App() {
           />
           <Route 
             path="/overview"
-            element={<Overview goals={goals} />}
+            element={<Overview goals={goals} exchangeRate={exchangeRate} />}
           />
         </Routes>
       </div>

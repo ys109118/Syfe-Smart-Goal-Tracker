@@ -23,8 +23,18 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
     const newTotal = getTotalContributions(goal.id);
     setTotalContributions(newTotal);
     
+    // Convert contribution to goal currency if different
+    let contributionAmount = contribution.amount;
+    if (contribution.currency !== goalCurrency && exchangeRate) {
+      if (contribution.currency === 'USD' && goalCurrency === 'INR') {
+        contributionAmount = contribution.amount * exchangeRate;
+      } else if (contribution.currency === 'INR' && goalCurrency === 'USD') {
+        contributionAmount = contribution.amount / exchangeRate;
+      }
+    }
+    
     // Update goal's saved amount
-    const updatedSavedAmount = goal.savedAmount + contribution.amount;
+    const updatedSavedAmount = goal.savedAmount + contributionAmount;
     updateGoal(goal.id, { savedAmount: updatedSavedAmount });
     
     setGoals(prevGoals => 
@@ -112,7 +122,12 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
               style={{ width: `${progressPercent}%` }}
             />
           </div>
-          <p className="remaining-amount">Remaining: {formatCurrency(goal.targetAmount - goal.savedAmount, goalCurrency)}</p>
+          <p className="remaining-amount">
+            {goal.targetAmount - goal.savedAmount > 0 
+              ? `Remaining: ${formatCurrency(goal.targetAmount - goal.savedAmount, goalCurrency)}`
+              : '🎉 Goal Exceeded!'
+            }
+          </p>
         </div>
         
         <div className="deadline-section">
@@ -126,7 +141,7 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
           </div>
         )}
 
-        <ContributionHistory goalId={goal.id} goalCurrency={goalCurrency} />
+        <ContributionHistory goalId={goal.id} goalCurrency={goalCurrency} exchangeRate={exchangeRate} />
 
         <div className="goal-actions">
           <button 

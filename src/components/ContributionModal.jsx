@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 function ContributionModal({ goal, isOpen, onClose, onContribute }) {
   const [amount, setAmount] = useState('');
+  const [currency, setCurrency] = useState(goal.currency || 'USD');
   const [date, setDate] = useState('');
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,10 +28,12 @@ function ContributionModal({ goal, isOpen, onClose, onContribute }) {
     try {
       await onContribute({
         amount: parseFloat(amount),
+        currency,
         date: date || new Date().toISOString().split('T')[0]
       });
       
       setAmount('');
+      setCurrency(goal.currency || 'USD');
       setDate('');
       setErrors({});
       onClose();
@@ -65,6 +68,18 @@ function ContributionModal({ goal, isOpen, onClose, onContribute }) {
               className={errors.amount ? 'error' : ''}
             />
             {errors.amount && <span className="error-message">{errors.amount}</span>}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="currency">Currency</label>
+            <select
+              id="currency"
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+            >
+              <option value="USD">USD ($)</option>
+              <option value="INR">INR (₹)</option>
+            </select>
           </div>
 
           <div className="form-group">

@@ -358,6 +358,11 @@ body {
   margin: 0.5rem 0 0 0;
 }
 
+.remaining-amount:has-text('🎉') {
+  color: var(--accent-secondary);
+  font-weight: 600;
+}
+
 .deadline-section {
   display: flex;
   justify-content: space-between;
@@ -421,9 +426,23 @@ body {
 .history-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 0.5rem;
   border-bottom: 1px solid var(--border-color);
   font-size: 0.875rem;
+}
+
+.history-amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.history-original {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
 .history-item:last-child {
@@ -656,52 +675,160 @@ form label {
 .overview {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 2rem;
   margin: 20px auto;
-  max-width: 800px;
+  max-width: 1000px;
 }
 
-.overview-card,
-.deadlines-card {
-  background-color: var(--bg-secondary);
+.overview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  opacity: 0.8;
+}
+
+.stat-info h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.stat-secondary {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.mini-progress {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 2px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.mini-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.deadlines-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
   box-shadow: var(--shadow);
   border: 1px solid var(--border-color);
 }
 
-.overview-card h2,
 .deadlines-card h3 {
   text-align: center;
   color: var(--text-primary);
-  margin-bottom: 1rem;
-}
-
-.overview-card p,
-.deadlines-card p {
-  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
 }
 
 .deadline-item {
   margin-bottom: 1rem;
-  padding: 0.75rem;
+  padding: 1rem;
   border-radius: var(--radius);
   background: var(--bg-tertiary);
   border-left: 4px solid var(--accent-primary);
+  transition: all 0.3s ease;
 }
 
-.deadline-item p {
-  margin: 0.25rem 0;
+.deadline-item:hover {
+  transform: translateX(4px);
 }
 
-.overdue-text {
-  color: var(--accent-danger) !important;
-  font-weight: bold;
+.deadline-item.overdue {
+  border-left-color: var(--accent-danger);
+  background: linear-gradient(135deg, var(--bg-tertiary), rgba(245, 101, 101, 0.1));
 }
 
-.warning-text {
-  color: var(--accent-warning) !important;
-  font-weight: bold;
+.deadline-item.warning {
+  border-left-color: var(--accent-warning);
+  background: linear-gradient(135deg, var(--bg-tertiary), rgba(237, 137, 54, 0.1));
+}
+
+.deadline-item.completed {
+  border-left-color: var(--accent-secondary);
+  background: linear-gradient(135deg, var(--bg-tertiary), rgba(72, 187, 120, 0.1));
+}
+
+.deadline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.deadline-header h4 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.deadline-date {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.deadline-status {
+  font-size: 0.875rem;
+}
+
+.status-completed {
+  color: var(--accent-secondary);
+  font-weight: 600;
+}
+
+.status-overdue {
+  color: var(--accent-danger);
+  font-weight: 600;
+}
+
+.status-normal {
+  color: var(--text-secondary);
+}
+
+.no-goals {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 2rem;
 }
 
 .empty-state {

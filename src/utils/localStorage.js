@@ -8,6 +8,7 @@ export const addContribution = (goalId, contribution) => {
   const newContribution = {
     id: Date.now(),
     amount: parseFloat(contribution.amount),
+    currency: contribution.currency || 'USD',
     date: contribution.date || new Date().toISOString().split('T')[0],
     timestamp: new Date().toISOString()
   };
