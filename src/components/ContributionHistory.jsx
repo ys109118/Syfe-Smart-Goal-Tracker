@@ -7,7 +7,8 @@ function ContributionHistory({ goalId, goalCurrency, exchangeRate }) {
 
   const formatCurrency = (amount, currency) => {
     const symbol = currency === 'USD' ? '$' : '₹';
-    return `${symbol}${amount.toFixed(2)}`;
+    const formatted = amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${symbol}${formatted}`;
   };
 
   const convertAmount = (amount, fromCurrency, toCurrency) => {
