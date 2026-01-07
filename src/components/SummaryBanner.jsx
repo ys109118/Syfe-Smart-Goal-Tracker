@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTotalContributions } from '../utils/localStorage';
+import { getTotalContributionsInUSD } from '../utils/localStorage';
 
 function SummaryBanner({ goals, exchangeRate }) {
   const [, forceUpdate] = useState({});
@@ -36,10 +36,8 @@ function SummaryBanner({ goals, exchangeRate }) {
 
   // Calculate total saved directly in render
   const totalSavedUSD = goals.reduce((sum, goal) => {
-    const goalCurrency = goal.currency || 'USD';
-    const actualSaved = getTotalContributions(goal.id);
-    const convertedAmount = convertToCommonCurrency(actualSaved, goalCurrency);
-    return sum + convertedAmount;
+    const actualSaved = getTotalContributionsInUSD(goal.id, exchangeRate);
+    return sum + actualSaved;
   }, 0);
 
   // Calculate average progress across all goals using actual contributions
