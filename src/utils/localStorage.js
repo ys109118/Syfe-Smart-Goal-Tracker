@@ -27,6 +27,21 @@ export const getTotalContributions = (goalId) => {
   return contributions.reduce((total, contrib) => total + contrib.amount, 0);
 };
 
+export const getTotalContributionsInUSD = (goalId, exchangeRate) => {
+  const contributions = getContributions(goalId);
+  return contributions.reduce((total, contrib) => {
+    const amount = contrib.amount;
+    const currency = contrib.currency || 'USD';
+    
+    if (currency === 'USD' || !exchangeRate) {
+      return total + amount;
+    } else {
+      // Convert INR to USD
+      return total + (amount / exchangeRate);
+    }
+  }, 0);
+};
+
 export const getTotalContributionsInGoalCurrency = (goalId, goalCurrency, exchangeRate) => {
   const contributions = getContributions(goalId);
   return contributions.reduce((total, contrib) => {
