@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink } from "react-router-dom";
 import ContributionModal from './ContributionModal';
 import ContributionHistory from './ContributionHistory';
-import { getTotalContributions, getTotalContributionsInUSD, addContribution } from '../utils/localStorage';
+import { getTotalContributions, getTotalContributionsInUSD, getTotalContributionsInGoalCurrency, addContribution } from '../utils/localStorage';
 import { updateGoal, deleteGoal } from '../utils/goalsAPI';
 
 function GoalCard({ goal, setGoals, exchangeRate }) {
@@ -43,8 +43,8 @@ function GoalCard({ goal, setGoals, exchangeRate }) {
   const goalCurrency = goal.currency || 'USD';
   const otherCurrency = goalCurrency === 'USD' ? 'INR' : 'USD';
   
-  // Use actual contributions from localStorage
-  const actualSaved = getTotalContributions(goal.id);
+  // Use actual contributions from localStorage in goal's currency
+  const actualSaved = getTotalContributionsInGoalCurrency(goal.id, goalCurrency, exchangeRate);
   
   const targetInOtherCurrency = convertAmount(goal.targetAmount, goalCurrency, otherCurrency);
   const savedInOtherCurrency = convertAmount(actualSaved, goalCurrency, otherCurrency);
